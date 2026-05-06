@@ -17,7 +17,8 @@ public class MixinPlayerTabOverlay {
     public Component prependTier(Component original, PlayerInfo entry) {
         TierTaggerConfig config = TierTagger.getManager().getConfig();
         if (config.isEnabled() && config.isPlayerList()) {
-            return TierTagger.appendTier(entry.getProfile().id(), original);
+            Component plainName = Component.literal(entry.getProfile().name());
+            return TierTagger.appendTier(entry.getProfile().id(), original, plainName);
         } else {
             return original;
         }
