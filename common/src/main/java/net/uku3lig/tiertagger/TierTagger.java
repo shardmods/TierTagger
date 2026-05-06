@@ -73,6 +73,12 @@ public class TierTagger {
     }
 
     public static Component appendTier(UUID uuid, Component text) {
+        return appendTier(uuid, text, text);
+    }
+
+    public static Component appendTier(UUID uuid, Component text, Component plainName) {
+        Component base = KitDetector.isOnMcpvp() ? plainName : text;
+
         MutableComponent following = getPlayerTier(uuid)
                 .map(entry -> {
                     Component tierText = getRankingText(entry.ranking(), false);
@@ -87,19 +93,16 @@ public class TierTagger {
 
         if (following != null) {
             following.append(Component.literal(" | ").withStyle(ChatFormatting.GRAY));
-            return following.append(text);
+            return following.append(base);
         }
 
-        return text;
+        return base;
     }
 
     public static Optional<PlayerInfo.NamedRanking> getPlayerTier(UUID uuid) {
-        GameMode mode = manager.getConfig().getGameMode();
-        GameMode detected = KitDetector.detectGameMode();
-        if (detected != GameMode.NONE) {
-            mode = detected;
-        }
-        
+        GameMode detected = KitDetector.currentGameMode();
+        GameMode mode = detected != GameMode.NONE ? detected : manager.getConfig().getGameMode();
+
         return TierCache.getPlayerRankings(uuid)
                 .map(rankings -> {
                     PlayerInfo.Ranking ranking = rankings.get(mode.id());
